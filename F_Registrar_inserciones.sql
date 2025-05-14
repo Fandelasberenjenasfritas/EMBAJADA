@@ -7,7 +7,7 @@ CREATE VIEW IF NOT EXISTS tipos_tabla (
 );
 
 -- Ignoramos ciudadanos y usuarios que no nos interesan
-INSERT IGNORE INTO tipos_tabla (table_name) VALUES
+INSERT IGNORE INTO tipos_tabla (table_name) VALUES   -- estoy asociando un idtabla (un numero que se incrementa solo), a las tablas que me interesa asociar a un número
 ('certificadoMatrimonio'),
 ('registroMatrimonio'),
 ('feDeVida'),
@@ -28,18 +28,18 @@ INSERT IGNORE INTO tipos_tabla (table_name) VALUES
 
 CREATE TABLE IF NOT EXISTS registros (
     idregistro TINYINT PRIMARY KEY AUTO_INCREMENT, -- numero de procedimiento registrado ese dia
-    numtabla TINYINT NOT NULL ,
-    fechahora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (numtabla) REFERENCES tipos_tabla(tipos_tabla.idtabla)
+    numtabla TINYINT NOT NULL ,                    -- el num que va asociado a la tabla según la tabla anterior
+    fechahora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,   -- fechahora del sistema
+    FOREIGN KEY (numtabla) REFERENCES tipos_tabla(tipos_tabla.idtabla)  
 );
 
-funcion que me da el tipo de tabla 
+-- funcion que me da el tipo de tabla 
 DELIMITER //
 CREATE FUNCTION FIDtabla(nombre_tabla VARCHAR(50)) 
 RETURNS INT
 DETERMINISTIC                                             -- para que no se repita
 BEGIN
-    DECLARE aux INT;
+    DECLARE aux INT;                                       -- creo una variable auxiliar donde el id coincide con el que tengo asociado a ese nombre
     SELECT tipos_tabla.idtabla INTO aux FROM tipos_tabla WHERE table_name = nombre_tabla;
     RETURN aux;
 END//
@@ -83,7 +83,7 @@ AFTER INSERT ON certificadoinscripcionconsular
 FOR EACH ROW
 BEGIN
     INSERT INTO registros (numtabla)
-    VALUES (FIDtabla('certificadoinscripcionconsular'));
+    VALUES (FIDtabla('certificadoinscripcionconsular')); -- llamo a la función para la única variable de la tabla registros que no se rellena sola 
 END//
 
 DELIMITER//
