@@ -17,11 +17,12 @@ DROP TABLE if EXISTS certificadoinscripcionconsular;
 DROP TABLE if EXISTS tipos_tabla;
 DROP TABLE if EXISTS reconocimientoslegales;
 DROP TABLE if EXISTS datoshacerunpoder;
-DROP TABLE if EXISTS certificadoContinuidadMatrimonio;
+DROP TABLE if EXISTS certificadocontinuidadmatrimonio;
 DROP TABLE if EXISTS registros;
 
 CREATE TABLE IF NOT EXISTS usuarios(
-tipoUsuario VARCHAR(50) PRIMARY KEY NOT NULL);
+tipoUsuario VARCHAR(50)  NOT NULL,
+dni VARCHAR(8) primary key NOT NULL UNIQUE);
 
 
 CREATE TABLE IF NOT EXISTS ciudadanos(
@@ -36,7 +37,8 @@ telefono VARCHAR(9) UNIQUE,
 correo VARCHAR(50),
 antecedentes BOOLEAN,
 edad INT,
-representante VARCHAR(50) DEFAULT NULL);
+representante VARCHAR(50) DEFAULT NULL,
+FOREIGN KEY (dni) REFERENCES usuarios (dni));
 
 
 CREATE TABLE IF NOT EXISTS certificadoMatrimonio(
@@ -59,7 +61,7 @@ FOREIGN KEY (dniTestigo) REFERENCES ciudadanos (dni)
 );
 
 CREATE TABLE if NOT EXISTS feDeVida(
-numRegFe SMALLINT NOT NULL UNIQUE PRIMARY KEY,
+numRegFe SMALLINT NOT NULL UNIQUE PRIMARY KEY AUTO_INCREMENT,
 dniCiudadano VARCHAR(8) NOT NULL UNIQUE,
 FOREIGN KEY (dniCiudadano) REFERENCES ciudadanos (dni));
 
@@ -96,7 +98,7 @@ FOREIGN KEY (numLicencia) REFERENCES ciudadanos (dni)
 CREATE TABLE if NOT EXISTS legalizaciones(
 documento SMALLINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 dniSolicitante VARCHAR(8) NOT NULL UNIQUE,
-tipoDocumento VARCHAR(10) NOT NULL,
+tipoDocumento VARCHAR(20) NOT NULL,
 fechaEmision DATE NOT NULL,
 relacionSolicitanteDocumento VARCHAR(100),
 tasas INT,
@@ -111,7 +113,7 @@ FOREIGN KEY (dniCiudadano) REFERENCES ciudadanos (dni)
 CREATE TABLE if NOT EXISTS declaracionesJuradas(
 dniDeclarante VARCHAR(8) PRIMARY KEY NOT NULL UNIQUE,
 fecha DATE NOT NULL,
-nombre VARCHAR(20) NOT NULL,
+nombre VARCHAR(100) NOT NULL,
 traduccionJurada VARCHAR(1000),
 FOREIGN KEY (dniDeclarante) REFERENCES ciudadanos (dni)
 );
