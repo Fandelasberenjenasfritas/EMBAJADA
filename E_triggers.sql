@@ -44,3 +44,18 @@ DELIMITER ;
 
 
 -- dni correcto
+
+--Regla de negocio de los reconocimientos legales
+
+DELIMITER //
+
+CREATE TRIGGER establecerRepresentante
+AFTER INSERT ON reconocimientosLegales
+FOR EACH ROW
+BEGIN
+    UPDATE ciudadanos
+    SET representante = NEW.dniProgenitor1
+    WHERE dni = NEW.dniHijo;
+END//
+
+DELIMITER ;
