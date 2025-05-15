@@ -1,29 +1,24 @@
 
 DELIMITER //
 
-CREATE FUNCTION Registrosdelmes() 
-RETURNS TABLE
+CREATE FUNCTION ContarRegistrosDelMes() 
+RETURNS INT
 DETERMINISTIC
 BEGIN
-    DECLARE registromensual TABLE;
+    DECLARE total INT;
     
-    DROP TABLE IF EXISTS registromensual;
-    CREATE TABLE registromensual (
-        idmensual INT AUTO_INCREMENT PRIMARY KEY,
-        table_name VARCHAR(50),
-        fecharegistro DATETIME,
-    );
-     INSERT INTO registromensual (table_name, fecharegistro )
-    SELECT 
-        tipos_tabla.table_name,
-        rg.fechahora,
-    FROM 
-        registros rg
-    JOIN 
-        tipos_tabla ON rg.numtabla= tipos_tabla.idtabla
-    WHERE 
-        MONTH(rg.fechahora = MONTH(CURRENT_DATE())
-        AND YEAR(rg.fechahora) = YEAR(CURRENT_DATE())
-    ORDER BY 
+    SELECT COUNT(*) INTO total
+    FROM registros rg
+    JOIN tipos_tabla ON rg.numtabla = tipos_tabla.idtabla
+    WHERE MONTH(rg.fechahora) = MONTH(CURRENT_DATE())
+    AND YEAR(rg.fechahora) = YEAR(CURRENT_DATE());
+    
+    RETURN total;
+END//
+
+DELIMITER ;
+
+-- Uso:
+SELECT ContarRegistrosDelMes();
         rg.fechahora;
     
