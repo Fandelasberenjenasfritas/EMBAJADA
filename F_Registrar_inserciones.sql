@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS tipos_tabla (
     idtabla TINYINT PRIMARY KEY AUTO_INCREMENT,
     table_name VARCHAR(50) NOT NULL UNIQUE
@@ -81,6 +82,7 @@ FOR EACH ROW
 BEGIN
     INSERT INTO registros (numtabla)
     VALUES (FIDtabla('certificadonacionalidad'));
+    CALL verificar_antecedentes_ciudadano(NEW.dniCiudadano);
 END//
 DELIMITER;
 
@@ -92,6 +94,7 @@ FOR EACH ROW
 BEGIN
     INSERT INTO registros (numtabla)
     VALUES (FIDtabla('datoshacerunpoder'));
+    CALL verificar_antecedentes_ciudadano(NEW.dniApoderante);
 END//
 DELIMITER;
 
@@ -114,6 +117,7 @@ FOR EACH ROW
 BEGIN
     INSERT INTO registros (numtabla)
     VALUES (FIDtabla('documentoviaje'));
+    CALL verificar_antecedentes_ciudadano(NEW.dniCiudadano);
 END//
 DELIMITER;
 
@@ -136,6 +140,7 @@ FOR EACH ROW
 BEGIN
     INSERT INTO registros (numtabla)
     VALUES (FIDtabla('legalizaciones'));
+    CALL verificar_antecedentes_ciudadano(NEW.dniSolicitante);
 END//
 DELIMITER;
 
@@ -150,6 +155,7 @@ BEGIN
 END//
 DELIMITER;
 
+
 DELIMITER //
 
 CREATE TRIGGER registrodefuncion_id
@@ -160,6 +166,8 @@ BEGIN
     VALUES (FIDtabla('registrodefuncion'));
 END//
 DELIMITER;
+
+
 
 DELIMITER //
 
