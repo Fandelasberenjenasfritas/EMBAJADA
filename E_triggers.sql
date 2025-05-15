@@ -1,6 +1,3 @@
--- TODOS LOS TRIGGERS 
-
--- Solo se puede ser menor con menos de 18 añitos
 DELIMITER //
 CREATE TRIGGER tr_longitudDNI
 BEFORE INSERT ON ciudadanos
@@ -14,8 +11,6 @@ END//
 DELIMITER ;
 
 
--- no dejar insertar num telf incorrecto en ciudadanos 
-
 DELIMITER //
 CREATE TRIGGER tr_longitudtelf
 BEFORE INSERT ON ciudadanos
@@ -28,24 +23,22 @@ BEGIN
 END//
 DELIMITER ;
 
+
 DELIMITER //
 
 CREATE TRIGGER tr_validar_menores_ciudadanos
 BEFORE INSERT ON ciudadanos
 FOR EACH ROW
 BEGIN
-    IF NEW.edad < 18 AND NEW.representante IS NULL THEN
+    -- Verificar si es menor de edad (menos de 18 años)
+    IF TIMESTAMPDIFF(YEAR, NEW.fechaNacimiento, CURDATE()) < 18 AND NEW.representante IS NULL THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: Ciudadanos menores deben tener representante';
+        SET MESSAGE_TEXT = 'Error: Ciudadanos menores de edad deben tener un representante asignado';
     END IF;
 END//
 
 DELIMITER ;
 
-
--- dni correcto
-
---Regla de negocio de los reconocimientos legales
 
 DELIMITER //
 
@@ -56,6 +49,60 @@ BEGIN
     UPDATE ciudadanos
     SET representante = NEW.dniProgenitor1
     WHERE dni = NEW.dniHijo;
+END//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER cambiarEstadoCivil
+AFTER INSERT ON registromatrimonio
+FOR EACH ROW
+BEGIN
+    UPDATE ciudadanos
+    SET estadoCivil = 'Casado'
+    WHERE dni = NEW.dniConyugue1;
+    UPDATE ciudadanos
+    SET representante = 'Casado'
+    WHERE dni = NEW.dniConyugue2;
+END//
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE TRIGGER estadosCivilesInvalidos
+BEFORE INSERT ON ciudadanos
+FOR EACH ROW 
+BEGIN 
+    IF NEW.estadoCivil NOT IN ('Soltero', 'Viudo', 'Casado', 'Divorciado') THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: No es un estado civil válido. Los valores permitidos son: Soltero, Viudo, Casado, Divorciado'; 
+    END IF; 
+END//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER nacionalidad_venezolana
+BEFORE INSERT ON documentoviaje
+FOR EACH ROW
+BEGIN
+    DECLARE nacionalidad_ciudadano VARCHAR(50);
+    
+    -- Obtener la nacionalidad del ciudadano específico
+    SELECT nacionalidad INTO nacionalidad_ciudadano
+    FROM ciudadanos
+    WHERE dni = NEW.dniCiudadano
+    LIMIT 1;
+    
+    -- Verificar si es venezolano (comparación exacta)
+    IF nacionalidad_ciudadano != 'venezolano' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Ciudadanos no venezolanos no pueden pedir documentos de viaje';
+    END IF;
 END//
 
 DELIMITER ;
