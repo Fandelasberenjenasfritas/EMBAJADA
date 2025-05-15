@@ -19,6 +19,7 @@ DROP TABLE if EXISTS reconocimientoslegales;
 DROP TABLE if EXISTS datoshacerunpoder;
 DROP TABLE if EXISTS certificadocontinuidadmatrimonio;
 DROP TABLE if EXISTS registros;
+DROP TABLE IF EXISTS autorizacionviajemenores;
 
 CREATE TABLE IF NOT EXISTS usuarios(
 tipoUsuario VARCHAR(50)  NOT NULL,
@@ -36,7 +37,8 @@ domicilio VARCHAR(50),
 telefono VARCHAR(9) UNIQUE,
 correo VARCHAR(50),
 antecedentes BOOLEAN,
-edad INT,
+estadoCivil VARCHAR(50),
+sexo VARCHAR(1) NOT null,
 representante VARCHAR(50) DEFAULT NULL,
 FOREIGN KEY (dni) REFERENCES usuarios (dni));
 
@@ -198,6 +200,8 @@ FOREIGN KEY (dniConyugue2) REFERENCES ciudadanos (dni),
 FOREIGN KEY (certificadoNacimiento1) REFERENCES registroNacimiento (numRegNac),
 FOREIGN KEY (certificadoNacimiento2) REFERENCES registroNacimiento (numRegNac)
 );
+
+
 
 
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -421,9 +425,10 @@ CREATE TRIGGER tr_validar_menores_ciudadanos
 BEFORE INSERT ON ciudadanos
 FOR EACH ROW
 BEGIN
-    IF NEW.edad < 18 AND NEW.representante IS NULL THEN
+    -- Verificar si es menor de edad (menos de 18 años)
+    IF TIMESTAMPDIFF(YEAR, NEW.fechaNacimiento, CURDATE()) < 18 AND NEW.representante IS NULL THEN
         SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error: Ciudadanos menores deben tener representante';
+        SET MESSAGE_TEXT = 'Error: Ciudadanos menores de edad deben tener un representante asignado';
     END IF;
 END//
 
@@ -443,6 +448,59 @@ END//
 
 DELIMITER ;
 
+DELIMITER //
+
+CREATE TRIGGER cambiarEstadoCivil
+AFTER INSERT ON registromatrimonio
+FOR EACH ROW
+BEGIN
+    UPDATE ciudadanos
+    SET estadoCivil = 'Casado'
+    WHERE dni = NEW.dniConyugue1;
+    UPDATE ciudadanos
+    SET representante = 'Casado'
+    WHERE dni = NEW.dniConyugue2;
+END//
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE TRIGGER estadosCivilesInvalidos
+BEFORE INSERT ON ciudadanos
+FOR EACH ROW 
+BEGIN 
+    IF NEW.estadoCivil NOT IN ('Soltero', 'Viudo', 'Casado', 'Divorciado') THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Error: No es un estado civil válido. Los valores permitidos son: Soltero, Viudo, Casado, Divorciado'; 
+    END IF; 
+END//
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER nacionalidad_venezolana
+BEFORE INSERT ON documentoviaje
+FOR EACH ROW
+BEGIN
+    DECLARE nacionalidad_ciudadano VARCHAR(50);
+    
+    -- Obtener la nacionalidad del ciudadano específico
+    SELECT nacionalidad INTO nacionalidad_ciudadano
+    FROM ciudadanos
+    WHERE dni = NEW.dniCiudadano
+    LIMIT 1;
+    
+    -- Verificar si es venezolano (comparación exacta)
+    IF nacionalidad_ciudadano != 'venezolano' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Ciudadanos no venezolanos no pueden pedir documentos de viaje';
+    END IF;
+END//
+
+DELIMITER ;
 ##-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -695,7 +753,7 @@ BEGIN
     
     SELECT COUNT(*) INTO total_menores 
     FROM ciudadanos 
-    WHERE edad < 18;
+    WHERE TIMESTAMPDIFF(YEAR, fechaNacimiento, CURDATE()) < 18;
     
     RETURN total_menores;
 END//
