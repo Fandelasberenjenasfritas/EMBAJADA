@@ -1,4 +1,3 @@
-
 DELIMITER //
 
 CREATE FUNCTION ContarRegistrosDelMes() 
@@ -20,5 +19,3 @@ DELIMITER ;
 
 -- Uso:
 SELECT ContarRegistrosDelMes();
-        rg.fechahora;
-    
