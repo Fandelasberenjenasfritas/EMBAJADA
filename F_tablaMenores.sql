@@ -8,7 +8,7 @@ BEGIN
     
     SELECT COUNT(*) INTO total_menores 
     FROM ciudadanos 
-    WHERE edad < 18;
+    WHERE TIMESTAMPDIFF(YEAR, fechaNacimiento, CURDATE()) < 18;
     
     RETURN total_menores;
 END//
