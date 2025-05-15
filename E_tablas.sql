@@ -19,6 +19,7 @@ DROP TABLE if EXISTS reconocimientoslegales;
 DROP TABLE if EXISTS datoshacerunpoder;
 DROP TABLE if EXISTS certificadocontinuidadmatrimonio;
 DROP TABLE if EXISTS registros;
+DROP TABLE IF EXISTS autorizacionviajemenores;
 
 CREATE TABLE IF NOT EXISTS usuarios(
 tipoUsuario VARCHAR(50)  NOT NULL,
@@ -36,7 +37,8 @@ domicilio VARCHAR(50),
 telefono VARCHAR(9) UNIQUE,
 correo VARCHAR(50),
 antecedentes BOOLEAN,
-edad INT,
+estadoCivil VARCHAR(50),
+sexo VARCHAR(1) NOT null,
 representante VARCHAR(50) DEFAULT NULL,
 FOREIGN KEY (dni) REFERENCES usuarios (dni));
 
@@ -198,3 +200,5 @@ FOREIGN KEY (dniConyugue2) REFERENCES ciudadanos (dni),
 FOREIGN KEY (certificadoNacimiento1) REFERENCES registroNacimiento (numRegNac),
 FOREIGN KEY (certificadoNacimiento2) REFERENCES registroNacimiento (numRegNac)
 );
+
+
