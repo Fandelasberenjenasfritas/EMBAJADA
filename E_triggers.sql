@@ -29,15 +29,17 @@ END//
 DELIMITER ;
 
 DELIMITER //
-CREATE TRIGGER tr_ciudadanos_edad_menor
-BEFORE INSERT ON Menores
+
+CREATE TRIGGER tr_validar_menores_ciudadanos
+BEFORE INSERT ON ciudadanos
 FOR EACH ROW
 BEGIN
-    IF NEW.edadMenor >= 18 THEN   -- si no funciona cambiar por 'edad'
-        SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'La edad debe ser menor a 18 años. Este usuario no es un menor';
+    IF NEW.edad < 18 AND NEW.representante IS NULL THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Ciudadanos menores deben tener representante';
     END IF;
 END//
+
 DELIMITER ;
 
 
