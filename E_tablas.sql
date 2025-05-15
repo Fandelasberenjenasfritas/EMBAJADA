@@ -14,16 +14,14 @@ DROP TABLE if EXISTS declaracionesJuradas;
 DROP TABLE if EXISTS apostilla;
 DROP TABLE if EXISTS documentoviaje;
 DROP TABLE if EXISTS certificadoinscripcionconsular;
-DROP TABLE if EXISTS autorizacionViajeMenores;
+DROP TABLE if EXISTS tipos_tabla;
 DROP TABLE if EXISTS reconocimientoslegales;
 DROP TABLE if EXISTS datoshacerunpoder;
 DROP TABLE if EXISTS certificadoContinuidadMatrimonio;
+DROP TABLE if EXISTS registros;
 
 CREATE TABLE IF NOT EXISTS usuarios(
-jefeMision VARCHAR(50) PRIMARY KEY,
-primeraSecretaria VARCHAR(50),
-asistenteAdm VARCHAR(50),
-ciudadanoDNI VARCHAR(8) UNIQUE);
+tipoUsuario VARCHAR(50) PRIMARY KEY NOT NULL);
 
 
 CREATE TABLE IF NOT EXISTS ciudadanos(
@@ -38,8 +36,7 @@ telefono VARCHAR(9) UNIQUE,
 correo VARCHAR(50),
 antecedentes BOOLEAN,
 edad INT,
-representante VARCHAR(50) DEFAULT NULL,
-FOREIGN KEY (dni) REFERENCES usuarios (ciudadanoDni));
+representante VARCHAR(50) DEFAULT NULL);
 
 
 CREATE TABLE IF NOT EXISTS certificadoMatrimonio(
