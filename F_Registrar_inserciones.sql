@@ -30,6 +30,16 @@ CREATE TABLE IF NOT EXISTS registros (
     FOREIGN KEY (numtabla) REFERENCES tipos_tabla(idtabla)  
 );
 
+DELIMITER //
+CREATE FUNCTION FIDtabla(nombre_tabla VARCHAR(50)) 
+RETURNS INT
+DETERMINISTIC                                             -- para que no se repita
+BEGIN
+    DECLARE aux INT;                                       -- creo una variable auxiliar donde el id coincide con el que tengo asociado a ese nombre
+    SELECT tipos_tabla.idtabla INTO aux FROM tipos_tabla WHERE table_name = nombre_tabla;
+    RETURN aux;
+END//
+DELIMITER ;
 
 DELIMITER //
 CREATE TRIGGER certificadoMatrimonio_id
@@ -202,14 +212,3 @@ BEGIN
 END//
 DELIMITER;
 
-
-DELIMITER //
-CREATE FUNCTION FIDtabla(nombre_tabla VARCHAR(50)) 
-RETURNS INT
-DETERMINISTIC                                             -- para que no se repita
-BEGIN
-    DECLARE aux INT;                                       -- creo una variable auxiliar donde el id coincide con el que tengo asociado a ese nombre
-    SELECT tipos_tabla.idtabla INTO aux FROM tipos_tabla WHERE table_name = nombre_tabla;
-    RETURN aux;
-END//
-DELIMITER ;
