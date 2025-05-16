@@ -133,7 +133,7 @@ INSERT INTO certificadoNacionalidad (dniCiudadano) VALUES
 ('34567890');
 
 -- 15. Insertar datos en declaracionesJuradas
-INSERT INTO declaracionesJuradas (dniDeclarante, fecha, nombre, traduccionJurada) VALUES
+INSERT INTO declaracionesJuradas (dniDeclarante, fecha, nombreJurada, traduccionJurada) VALUES
 ('67890123', '2023-06-10', 'Declaración de soltería', 'Certifico que soy soltero/a y no tengo impedimento para contraer matrimonio'),
 ('78901234', '2023-07-15', 'Declaración de ingresos', 'Certifico que mis ingresos provienen de actividades lícitas'),
 ('89012345', '2023-08-20', 'Declaración de residencia', 'Certifico que resido en el domicilio indicado');
